@@ -55,35 +55,32 @@ func isAsc(nums []int) bool {
 }
 
 func isValid(nums []int, skips int) bool {
-	if len(nums) <= 1 {
-		return true
-	}
-
 	ascending := isAsc(nums)
 	badLevel := 0
 	last := nums[0]
 
 	for _, num := range nums[1:] {
+
+		if badLevel > skips {
+			utils.Debugf("%v: Unsafe (bad: %d, skips: %d)\n", nums, badLevel, skips)
+			return false
+		}
+
 		if last == num {
 			badLevel++
 			continue
-		}
-
-		if d := diff(last, num); d < 1 || d > 3 {
+		} else if d := diff(last, num); d < 1 || d > 3 {
+			badLevel++
+			continue
+		} else if ascending && last > num {
+			badLevel++
+			continue
+		} else if !ascending && last < num {
 			badLevel++
 			continue
 		}
 
-		if ascending && last > num {
-			badLevel++
-			continue
-		}
-
-		if !ascending && last < num {
-			badLevel++
-			continue
-		}
-
+		// only update if num is good.
 		last = num
 	}
 
@@ -122,7 +119,7 @@ func Run() {
 	var wg sync.WaitGroup
 	var channels []chan<- string
 
-	if utils.OnlyPart1 {
+	if utils.RunPartOne() {
 		chan1 := make(chan string)
 		wg.Add(1)
 		channels = append(channels, chan1)
@@ -132,7 +129,7 @@ func Run() {
 		}()
 	}
 
-	if utils.OnlyPart2 {
+	if utils.RunPartTwo() {
 		chan2 := make(chan string)
 		channels = append(channels, chan2)
 		wg.Add(1)
@@ -141,7 +138,6 @@ func Run() {
 			solution(chan2, 1)
 		}()
 	}
-	scanInput("d02/input", channels...)
-	//scanInput("d02/input", channels...)
+	scanInput(utils.InputFilename("d02/input"), channels...)
 	wg.Wait()
 }
