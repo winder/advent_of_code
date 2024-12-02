@@ -73,7 +73,7 @@ func part2(l1 []int, l2 []int) int {
 	return sim
 }
 
-func D1() {
+func Run() {
 	l1, l2, err := readInput("d01/1.input")
 	if err != nil {
 		fmt.Printf("Input error: %s\n", err)
