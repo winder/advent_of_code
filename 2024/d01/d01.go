@@ -7,7 +7,13 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/winder/advent_of_code/2024/utils"
 )
+
+func init() {
+	register()
+}
 
 func readInput(filepath string) ([]int, []int, error) {
 	var l1 []int
@@ -73,7 +79,7 @@ func part2(l1 []int, l2 []int) int {
 	return sim
 }
 
-func Run() {
+func register() {
 	l1, l2, err := readInput("d01/1.input")
 	if err != nil {
 		fmt.Printf("Input error: %s\n", err)
@@ -87,6 +93,13 @@ func Run() {
 		os.Exit(1)
 	}
 
-	fmt.Println("Part1:", part1(l1, l2))
-	fmt.Println("Part2:", part2(l1, l2))
+	utils.RegisterDay(1,
+		func() error {
+			fmt.Println(part1(l1, l2))
+			return nil
+		},
+		func() error {
+			fmt.Println(part2(l1, l2))
+			return nil
+		})
 }

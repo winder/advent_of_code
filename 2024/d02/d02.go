@@ -11,7 +11,23 @@ import (
 	"github.com/winder/advent_of_code/2024/utils"
 )
 
-const verbose = true
+func init() {
+	test := func(skip int) func() error {
+		return func() error {
+			var wg sync.WaitGroup
+			wg.Add(1)
+			chan1 := make(chan string)
+			go func() {
+				defer wg.Done()
+				solution(chan1, skip)
+			}()
+			scanInput(utils.InputFilename("d02/input"), chan1)
+			wg.Wait()
+			return nil
+		}
+	}
+	utils.RegisterDay(2, test(0), test(1))
+}
 
 func scanInput(filepath string, results ...chan<- string) error {
 	for _, part := range results {
@@ -113,31 +129,4 @@ func solution(lines <-chan string, skips int) {
 	}
 
 	fmt.Printf("Valid reports (skips %d): %d\n", skips, validCount)
-}
-
-func Run() {
-	var wg sync.WaitGroup
-	var channels []chan<- string
-
-	if utils.RunPartOne() {
-		chan1 := make(chan string)
-		wg.Add(1)
-		channels = append(channels, chan1)
-		go func() {
-			defer wg.Done()
-			solution(chan1, 0)
-		}()
-	}
-
-	if utils.RunPartTwo() {
-		chan2 := make(chan string)
-		channels = append(channels, chan2)
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			solution(chan2, 1)
-		}()
-	}
-	scanInput(utils.InputFilename("d02/input"), channels...)
-	wg.Wait()
 }
