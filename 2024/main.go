@@ -6,6 +6,7 @@ import (
 
 	_ "github.com/winder/advent_of_code/2024/d01"
 	_ "github.com/winder/advent_of_code/2024/d02"
+	_ "github.com/winder/advent_of_code/2024/d03"
 	"github.com/winder/advent_of_code/2024/utils"
 )
 
