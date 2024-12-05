@@ -1,30 +1,27 @@
 package utils
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
+	"iter"
+	"os"
 )
 
 func init() {
 	flag.BoolVar(&verbose, "verbose", false, "verbose output")
 	flag.IntVar(&onlyDay, "only-day", 0, "only run the given day")
-	flag.BoolVar(&onlyPart1, "only-part-1", false, "only run part 1")
-	flag.BoolVar(&onlyPart2, "only-part-2", false, "only run part 2")
+	flag.IntVar(&onlyPart, "only-part", 0, "only run given part")
 	flag.StringVar(&inputFile, "input-file", "", "override input filename.")
 }
 
 var verbose = false
 var onlyDay = 0
-var onlyPart1 = true
-var onlyPart2 = true
+var onlyPart = 0
 var inputFile = ""
 
 func ValidateFlags() error {
 	flag.Parse()
-
-	if onlyPart1 && onlyPart2 {
-		return fmt.Errorf("do not provide both -only-part-1 and -only-part-2")
-	}
 
 	if onlyDay != 0 {
 		if _, ok := days[onlyDay]; !ok {
@@ -35,11 +32,30 @@ func ValidateFlags() error {
 	return nil
 }
 
-func InputFilename(defaultValue string) string {
+func InputFilename(defaultFile string) string {
 	if inputFile == "" {
-		return defaultValue
+		return defaultFile
 	}
 	return inputFile
+}
+
+func Lines(defaultFile string) (iter.Seq[string], error) {
+	file, err := os.Open(InputFilename(defaultFile))
+	if err != nil {
+		return nil, fmt.Errorf("unable to open file: %w", err)
+	}
+
+	scanner := bufio.NewScanner(file)
+
+	seq := func(yield func(string) bool) {
+		defer file.Close()
+		for scanner.Scan() {
+			if !yield(scanner.Text()) {
+				return
+			}
+		}
+	}
+	return seq, scanner.Err()
 }
 
 func Debugf(format string, args ...any) {
