@@ -111,8 +111,8 @@ func dfsP2(grid [][]byte, x, y int) int {
 	return num
 }
 
-func search(dfs func(grid [][]byte, x, y int) int) func() error {
-	return func() error {
+func search(dfs func(grid [][]byte, x, y int) int) func(int) error {
+	return func(_ int) error {
 		grid, err := readGrid(utils.InputFilename("d04/input"))
 		if err != nil {
 			return err

@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	utils.RegisterDay(3, part1, part2)
+	utils.RegisterDay(3, part, part)
 }
 
 type op struct {
@@ -67,25 +67,7 @@ func tokenize(lines iter.Seq[string]) iter.Seq[op] {
 	}
 }
 
-func part1() error {
-	filename := utils.InputFilename("d03/input")
-	input, err := utils.Lines(filename)
-	if err != nil {
-		return err
-	}
-
-	sum := 0
-	for m := range tokenize(input) {
-		if m.op == "mul" {
-			sum += m.multiply()
-		}
-	}
-
-	fmt.Println("sum: ", sum)
-	return nil
-}
-
-func part2() error {
+func part(p int) error {
 	filename := utils.InputFilename("d03/input")
 	input, err := utils.Lines(filename)
 	if err != nil {
@@ -97,7 +79,7 @@ func part2() error {
 	for m := range tokenize(input) {
 		switch m.op {
 		case "mul":
-			if enabled {
+			if enabled || p < 2 {
 				sum += m.multiply()
 			}
 		case "do":

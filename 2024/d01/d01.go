@@ -94,11 +94,11 @@ func register() {
 	}
 
 	utils.RegisterDay(1,
-		func() error {
+		func(_ int) error {
 			fmt.Println(part1(l1, l2))
 			return nil
 		},
-		func() error {
+		func(_ int) error {
 			fmt.Println(part2(l1, l2))
 			return nil
 		})

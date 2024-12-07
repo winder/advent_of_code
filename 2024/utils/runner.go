@@ -10,7 +10,7 @@ func init() {
 
 var days map[int]Day
 
-type RunHandler func() error
+type RunHandler func(part int) error
 
 type Day struct {
 	parts []RunHandler
@@ -29,13 +29,13 @@ func runOne(day Day) {
 	all := onlyPart == 0
 
 	for i, part := range day.parts {
-		dayNum := i + 1
-		fmt.Printf("Part %d\n", dayNum)
-		if !all && onlyPart != dayNum {
+		partNum := i + 1
+		fmt.Printf("Part %d\n", partNum)
+		if !all && onlyPart != partNum {
 			fmt.Println("** skipped **")
 			continue
 		}
-		if err := part(); err != nil {
+		if err := part(partNum); err != nil {
 			fmt.Printf("** error: %v **\n", err)
 		}
 	}

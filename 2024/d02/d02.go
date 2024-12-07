@@ -12,21 +12,7 @@ import (
 )
 
 func init() {
-	test := func(skip int) func() error {
-		return func() error {
-			var wg sync.WaitGroup
-			wg.Add(1)
-			chan1 := make(chan string)
-			go func() {
-				defer wg.Done()
-				solution(chan1, skip)
-			}()
-			scanInput(utils.InputFilename("d02/input"), chan1)
-			wg.Wait()
-			return nil
-		}
-	}
-	utils.RegisterDay(2, test(0), test(1))
+	utils.RegisterDay(2, part, part)
 }
 
 func scanInput(filepath string, results ...chan<- string) error {
@@ -129,4 +115,19 @@ func solution(lines <-chan string, skips int) {
 	}
 
 	fmt.Printf("Valid reports (skips %d): %d\n", skips, validCount)
+}
+
+func part(p int) error {
+	skip := p - 1
+
+	var wg sync.WaitGroup
+	wg.Add(1)
+	chan1 := make(chan string)
+	go func() {
+		defer wg.Done()
+		solution(chan1, skip)
+	}()
+	scanInput(utils.InputFilename("d02/input"), chan1)
+	wg.Wait()
+	return nil
 }
