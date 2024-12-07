@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	utils.RegisterDay(5, part1, part2)
+	utils.RegisterDay(5, part, part)
 }
 
 func parse(filepath string) (map[int][]int, map[int][]int, [][]int, error) {
@@ -37,7 +37,7 @@ func parse(filepath string) (map[int][]int, map[int][]int, [][]int, error) {
 				return nil, nil, nil, fmt.Errorf("bad rule: %s", ruleOrBook)
 			}
 
-			before[pg1] = append(after[pg1], pg2)
+			before[pg1] = append(before[pg1], pg2)
 			after[pg2] = append(after[pg2], pg1)
 		} else {
 			var book []int
@@ -57,72 +57,98 @@ func parse(filepath string) (map[int][]int, map[int][]int, [][]int, error) {
 }
 
 func isOrdered(before map[int][]int, after map[int][]int, book []int) bool {
-	remaining := make(map[int]struct{})
-	for _, page := range book {
-		remaining[page] = struct{}{}
-	}
+	/*
+		remaining := make(map[int]struct{})
+		for _, page := range book {
+			remaining[page] = struct{}{}
+		}
 
-	pageSet := make(map[int]struct{})
+		for _, page := range book {
+			// check for required pages
+			for _, reqPage := range after[page] {
+				if _, ok := remaining[reqPage]; ok {
+					return false
+				}
+			}
+			delete(remaining, page)
+		}
+	*/
+
+	seen := make(map[int]struct{})
 	for _, page := range book {
-		// check for required pages
-		for _, reqPage := range after[page] {
-			if _, ok := remaining[reqPage]; ok {
+		for _, beforePage := range before[page] {
+			if _, ok := seen[beforePage]; ok {
+				// violation detected.
 				return false
 			}
 		}
-		delete(remaining, page)
-
-		pageSet[page] = struct{}{}
+		seen[page] = struct{}{}
 	}
 	return true
 }
 
-func part1() error {
+func isOrderedOrReOrder(before map[int][]int, after map[int][]int, book []int) (bool, []int) {
+	remaining := make(map[int]int)
+	for i, page := range book {
+		remaining[page] = i
+	}
+
+	reordered := false
+	for i, _ := range book {
+		swapped := true
+		nextIdx := i
+
+		// keep selecting from remaining pages until there are no violations.
+		for swapped {
+			swapped = false
+			for _, cannotBeBeforePage := range after[book[nextIdx]] {
+				if j, ok := remaining[cannotBeBeforePage]; ok {
+					nextIdx = j
+					swapped = true
+				}
+			}
+		}
+
+		// Perform the swap if needed.
+		if i != nextIdx {
+			reordered = true
+			remaining[book[i]] = nextIdx
+			book[i], book[nextIdx] = book[nextIdx], book[i]
+		}
+
+		delete(remaining, book[i])
+	}
+
+	return !reordered, book
+}
+
+func part(p int) error {
 	filename := utils.InputFilename("d05/input")
 	before, after, books, err := parse(filename)
 	if err != nil {
 		return err
 	}
 
-	sumOfMiddles := 0
+	sumOfOrdered := 0
+	sumOfReordered := 0
 
 	for _, book := range books {
-		if isOrdered(before, after, book) {
-			sumOfMiddles += book[len(book)/2]
+		inOrder, book := isOrderedOrReOrder(before, after, book)
+
+		mid := book[len(book)/2]
+		if inOrder {
+			sumOfOrdered += mid
+		} else {
+			sumOfReordered += mid
 		}
 	}
 
-	fmt.Println(sumOfMiddles)
-
-	return nil
-}
-
-func reOrder(before map[int][]int, after map[int][]int, book []int) []int {
-	remaining := make(map[int]struct{})
-	for _, page := range book {
-		remaining[page] = struct{}{}
+	switch p {
+	case 1:
+		fmt.Println(sumOfOrdered)
+	case 2:
+		fmt.Println(sumOfReordered)
 	}
-
-	return nil
-}
-
-func part2() error {
-	filename := utils.InputFilename("d05/input")
-	before, after, books, err := parse(filename)
-	if err != nil {
-		return err
-	}
-
-	sumOfMiddles := 0
-
-	for _, book := range books {
-		if isOrdered(before, after, book) {
-			continue
-			//sumOfMiddles += book[len(book)/2]
-		}
-	}
-
-	fmt.Println(sumOfMiddles)
 
 	return nil
 }
